@@ -548,9 +548,8 @@ public class Game {
 											}
 											if (e1.collisionCategory == 1 && e2.collisionCategory == 3) {
 												try {
-
 													Sound.playClip("sound/hahaha.wav");
-													Thread.sleep(8000);
+													Thread.sleep(5000);
 												} catch (Exception e) {
 													System.out.println("Trouble playing lose sound");
 													e.printStackTrace();
@@ -585,7 +584,7 @@ public class Game {
 												paused = true;
 											} else if (e1.collisionCategory == 5 && e2.collisionCategory == 0) {
 												try {
-													Sound.playClip("sound/horn.wav");
+													Sound.playClip("sound/penalty.wav");
 												} catch (Exception e) {
 													System.out.println("Trouble playing level up sound");
 													e.printStackTrace();
