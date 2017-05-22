@@ -1,20 +1,21 @@
+import java.awt.geom.Area;
+import java.awt.geom.Point2D;
+import java.io.File;
+import java.util.Iterator;
+//import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Random;
+
 import com.jogamp.nativewindow.WindowClosingProtocol;
-import com.jogamp.opengl.*;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.MouseListener;
 import com.jogamp.newt.opengl.GLWindow;
-
-import java.awt.geom.Area;
-import java.awt.geom.Point2D;
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-//import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Random;
-import java.util.Scanner;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLException;
+import com.jogamp.opengl.GLProfile;
 
 public class Game {
 	// Set this to true to make the game loop exit.
@@ -80,9 +81,9 @@ public class Game {
 		// tr.add(new Point2D.Double(220, 220));
 		// tr.add(new Point2D.Double(200, 240));
 		// tr.add(new Point2D.Double(180, 220));
-		tr.add(new Point2D.Double(200, 200));
-		tr.add(new Point2D.Double(207, 215));
-		tr.add(new Point2D.Double(193, 215));
+		tr.add(new Point2D.Double(250, 550));
+		tr.add(new Point2D.Double(257, 565));
+		tr.add(new Point2D.Double(243, 565));
 		wedge = new Entity(tr);// Entity(0, 15, 20, 20, 0, 0);
 		wedge.solid = true;
 		wedge.moving = true;
@@ -172,7 +173,7 @@ public class Game {
 									// anything else
 		entities.add(ceil);
 
-		paddle = new Entity(100, windowSize[1] - 30, (int) paddleWidth, 30, 0, 0);
+		paddle  = new Entity((int)(windowSize[0]/2 - paddleWidth/2), windowSize[1]-30, (int)paddleWidth, 30, 0, 0);
 		paddle.solid = true;
 		paddle.moving = false;
 		paddle.name = "ceil";
@@ -234,6 +235,10 @@ public class Game {
 		camera.name = "camera";
 
 		drawing = new PolygonI();
+		drawing.color[0] = .9f;
+		drawing.color[1] = .2f;
+		drawing.color[2] = .1f;
+
 		cutLine = new Line();
 		lastCutPoint = new Point2D.Double(0, 0);
 
@@ -308,13 +313,16 @@ public class Game {
 		gl.glEnable(GL2.GL_TEXTURE_2D);
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-		
-		/*try {
-			Sound.playClipLoop(new File("sound/bg.wav"));
-		} catch (Exception e) {
-			System.out.println("Trouble playing sound");
-			e.printStackTrace();
-		}*/
+
+		//TexImage winTex = new TexImage(gl, "text/levelup.png");
+		// TexImage loseTex = new TexImage(gl, "text/lose.png");
+		//TexImage menuTex = new TexImage(gl, "text/menu.tga");
+
+		/*
+		 * try { Sound.playClipLoop(new File("sound/bg.wav")); } catch
+		 * (Exception e) { System.out.println("Trouble playing sound");
+		 * e.printStackTrace(); }
+		 */
 
 		// Game initialization goes here.
 
@@ -338,7 +346,7 @@ public class Game {
 		boolean cutpressed = false;
 		boolean paused = true;
 		boolean framestep = false;
-		
+
 		// The game loop
 		long lastFrameNS;
 		long curFrameNS = System.nanoTime();
@@ -363,14 +371,12 @@ public class Game {
 			if (kbState[KeyEvent.VK_ESCAPE]) {
 				shouldExit = true;
 			}
-			if (kbState[KeyEvent.VK_UP]) {
-				// wedge.poly.translate(0, -1);
-				paddle.poly.translate(0, -paddle.baseSpeed);
-			}
-			if (kbState[KeyEvent.VK_DOWN]) {
-				// wedge.poly.translate(0, 1);
-				paddle.poly.translate(0, paddle.baseSpeed);
-			}
+			/*
+			 * if (kbState[KeyEvent.VK_UP]) { // wedge.poly.translate(0, -1);
+			 * paddle.poly.translate(0, -paddle.baseSpeed); } if
+			 * (kbState[KeyEvent.VK_DOWN]) { // wedge.poly.translate(0, 1);
+			 * paddle.poly.translate(0, paddle.baseSpeed); }
+			 */
 
 			if (kbState[KeyEvent.VK_LEFT]) {
 				// wedge.poly.translate(-1, 0);
@@ -407,6 +413,7 @@ public class Game {
 				wedge.velocity.x += 1;
 			}
 			if (kbState[KeyEvent.VK_R]) {
+				score = 0;
 				levelsCleared = 0;
 				buildLevel(levelsCleared);
 			}
@@ -433,6 +440,7 @@ public class Game {
 				steppressed = false;
 			}
 			if (kbState[KeyEvent.VK_BACK_SPACE]) {
+				cutLine = new Line();
 				drawing.reset();
 			}
 			if (kbState[KeyEvent.VK_ENTER]) {
@@ -447,6 +455,9 @@ public class Game {
 				tempEntity.gravity = grav;
 				tempEntity.velocity = new Vector(0, .25);
 				tempEntity.name = "tempEntity #" + tempEntityCount;
+				tempEntity.poly.color[0] = 0.1f;
+				tempEntity.poly.color[1] = 0.2f;
+				tempEntity.poly.color[2] = 0.8f;
 				entities.add(tempEntity);
 				tempEntityCount++;
 				drawing.reset();
@@ -536,6 +547,14 @@ public class Game {
 												}
 											}
 											if (e1.collisionCategory == 1 && e2.collisionCategory == 3) {
+												try {
+
+													Sound.playClip("sound/hahaha.wav");
+													Thread.sleep(8000);
+												} catch (Exception e) {
+													System.out.println("Trouble playing lose sound");
+													e.printStackTrace();
+												}
 												// loss
 												System.out.println("loss");
 												// score = score + 20 +
@@ -548,9 +567,9 @@ public class Game {
 												paused = true;
 											} else if (e1.collisionCategory == 1 && e2.collisionCategory == 2) {
 												try {
-													Sound.playClip(new File("sound/horn.wav"));
-													Sound.playClip(new File("sound/yay.wav"));
-													Sound.playClip(new File("sound/clap.wav"));
+													Sound.playClip("sound/horn.wav");
+													Sound.playClip("sound/yay.wav");
+													Sound.playClip("sound/clap.wav");
 												} catch (Exception e) {
 													System.out.println("Trouble playing level up sound");
 													e.printStackTrace();
@@ -565,39 +584,52 @@ public class Game {
 												stageOver = true;
 												paused = true;
 											} else if (e1.collisionCategory == 5 && e2.collisionCategory == 0) {
+												try {
+													Sound.playClip("sound/horn.wav");
+												} catch (Exception e) {
+													System.out.println("Trouble playing level up sound");
+													e.printStackTrace();
+												}
 												penalties++;
 												e2.markedForDelete = true;
 												bgColor[0] = 1f;
-											} else if(e1.collisionCategory == 4 && e2.collisionCategory == 1){
+											} else if (e1.collisionCategory == 4 && e2.collisionCategory == 1) {
 												try {
-													Sound.playClip(new File("sound/collide.wav"));
+													Sound.playClip("sound/collide.wav");
 												} catch (Exception e) {
 													System.out.println("Trouble playing collide with wall sound");
 													e.printStackTrace();
 												}
-                        					} 
+											}
 											boolean doCut = (!e1.markedForDelete && !e2.markedForDelete
 													&& e1.collisionCategory == 1 && e2.collisionCategory == 0);
-											
-											if (doCut) {
+
+											if (!e1.collide(e2, doCut).isEmpty()) {
+												newEntities.addAll(e1.collide(e2, doCut));
 												try {
-													Sound.playClip(new File("sound/glass_break.wav"));
+													Sound.playClip("sound/glass_break.wav");
 												} catch (Exception e) {
 													System.out.println("Trouble playing collide with enemy sound");
 													e.printStackTrace();
 												}
-                        					}
+											} else if (doCut) {
+												try {
+													Sound.playClip("sound/collide.wav");
+												} catch (Exception e) {
+													System.out.println("Trouble playing collide with wall sound");
+													e.printStackTrace();
+												}
+											}
 											// if(e1.collisionCategory == 1 &&
 											// e2.collisionCategory == 5){
 											//
 											// }else{
-											newEntities.addAll(e1.collide(e2, doCut));
 											// bgColor[1] = 1f;
 											// }
 
 											if (e1.collisionCategory == 5 && e2.collisionCategory == 1) {
 												try {
-													Sound.playClip(new File("sound/collide.wav"));
+													Sound.playClip("sound/collide.wav");
 												} catch (Exception e) {
 													System.out.println("Trouble playing collide with paddle sound");
 													e.printStackTrace();
@@ -713,9 +745,9 @@ public class Game {
 			 * testLines.add(backTrackL2);//
 			 */
 
-			for (Line l : testLines) {
+			/*for (Line l : testLines) {
 				l.draw(gl, camera);
-			}
+			}*/
 
 			drawing.draw(gl, camera);
 			cutLine.draw(gl, camera);
