@@ -1,21 +1,24 @@
-import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
-// http://stackoverflow.com/questions/577724/trouble-playing-wav-in-java/577926#577926
 public class Sound {
 	public static void playClip(String filename) throws Exception {
-		DataInputStream file = null;
+		InputStream file = null;
 		try {
 			// Open the file.
 			// file = new DataInputStream(new FileInputStream(filename));
-			file = new DataInputStream(Main.class.getResourceAsStream(filename));
+			file = Main.class.getResourceAsStream(filename);//new DataInputStream(Main.class.getResourceAsStream(filename));
 		} catch (Exception ex) {
 			System.err.format("File: %s -- Could not open for reading.", filename);
 		}
+		InputStream bufferedIn = new BufferedInputStream(file);
+		AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn);
 		Clip clip = AudioSystem.getClip();
-		clip.open(AudioSystem.getAudioInputStream(file));
+		clip.open(audioStream);
 		clip.start();
 	}
 }
